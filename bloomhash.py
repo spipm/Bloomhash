@@ -8,14 +8,27 @@ import struct
 
 from random import randint
 
+class ntlm(object):
+	""" Simple ntlm hash class """
+
+	def __init__(self, value):
+		self.value = value
+		
+	def hexdigest(self):
+		try:
+			return hashlib.new('md4', self.value.encode('utf-16le')).hexdigest()
+		except:
+			return hashlib.new('md4', "EncodingError".encode('utf-16le')).hexdigest()
 
 
 class bloomhashLookupBuilder(object):
 	""" Creates negative lookup table for password hashes using a bloom filter like structure in files """
 
 
-	def __init__(self, wordlistFile, debug=False):
+	def __init__(self, wordlistFile, debug=False, status=True):
 		self.debug = debug
+		self.status = status
+		self.statusCount = 0
 		self.wordlistFile = wordlistFile
 		self.hashMethods = {}	# container for hash method / output file
 		
@@ -25,6 +38,11 @@ class bloomhashLookupBuilder(object):
 	def processEntry(self, word):
 		''' process a single value from the wordlist '''
 
+		if self.status:
+			self.statusCount += 1
+			if self.statusCount % (self.bitArraySize / 10) == 0:
+				print "@ " + str(self.statusCount)
+
 		for method in self.hashMethods:
 			fout = self.hashMethods[method][1]
 			bloomIndex = int(self.hashMethods[method][0](word).hexdigest(),16) % self.bitArraySize
@@ -32,21 +50,21 @@ class bloomhashLookupBuilder(object):
 			byteIndex = bloomIndex / 8
 			bitIndex = int(bloomIndex % 8)
 
-			if self.debug:
-				print "\nIndex: " + str(bloomIndex)
-				print "Byte index: " + str(byteIndex)
-				print "Bit index: " + str(bitIndex)
+			#if self.debug:
+			#	print "\nIndex: " + str(bloomIndex)
+			#	print "Byte index: " + str(byteIndex)
+			#	print "Bit index: " + str(bitIndex)
 
 			fout.seek(byteIndex)
 			character = struct.unpack('B', fout.read(1))[0]
 
-			if self.debug:
-				print "Binary before: " + bin(character)
+			#if self.debug:
+			#	print "Binary before: " + bin(character)
 
 			character |= ( 1 << bitIndex )
 
-			if self.debug:
-				print "Binary after : " + bin(character)
+			#if self.debug:
+			#	print "Binary after : " + bin(character)
 
 			fout.seek(byteIndex)
 			fout.write(chr(character))
@@ -138,7 +156,8 @@ class bloomhashLookupper(object):
 						'openssl_sha224':hashlib.sha224,
 						'openssl_sha256':hashlib.sha256,
 						'openssl_sha384':hashlib.sha384,
-						'openssl_sha512':hashlib.sha512
+						'openssl_sha512':hashlib.sha512,
+						'ntlm':ntlm
 						}
 
 		return methodTable[name]
@@ -196,17 +215,16 @@ class bloomhashLookupTester(object):
 		'''
 
 		with open(self.lookupper.originalFile,'r') as fin:
-			line = fin.readline().strip("\n\r")
-			while line != '':
+
+			for line in fin:
+
+				line = line.strip("\n\r")
 
 				if not self.lookupper.lookupHashFor(line):
 					if self.debug:
 						print "Value does not map: " + line
 						print "With method: " + self.lookupper.hashMethodName
 					return False
-				else:
-					line = fin.readline().strip("\n")
-					continue
 
 		return True
 
