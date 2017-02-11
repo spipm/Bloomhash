@@ -5,11 +5,6 @@ Bloomhash allows you to instantly check if a hash can _not_ be created using a s
 
 What does this mean? It means that if the lookup tells you that a word might be contained in the wordlist, it's useless. But if the result is negative (hash cannot be created), it's not possible that the wordlist can create the hash. This lookup can be done instantly. 
 
-##Online lookup
-You can perform lookups on pre-build tables for free on Bloomhash.com:
-
-[bloomhash.com](http://www.bloomhash.com)
-
 ##License
 Bloomhash is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License. This means you are free to:
 
