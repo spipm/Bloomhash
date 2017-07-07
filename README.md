@@ -19,7 +19,3 @@ Bloomhash is licensed under a Creative Commons Attribution-NonCommercial 4.0 Int
 
 For more information about the license see:
 [https://creativecommons.org/licenses/by-nc/4.0/](https://creativecommons.org/licenses/by-nc/4.0/)
-
-## Contact
-
-For questions, bugs, or any contact involving bloomhash, see the [about page](http://bloomhash.com/about.py).
