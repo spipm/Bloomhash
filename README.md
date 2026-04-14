@@ -1,5 +1,7 @@
 # Bloomhash
 
+(migrated to https://codeberg.org/spipm/Bloomhash)
+
 ## Introduction
 
 Bloomhash allows you to instantly check if a hash can _not_ be created using a specific wordlist. The chance of false positives is about 1/3'rd, but the chance for false negatives is zero. The purpose of bloomhash is providing information about wordlists that can be skipped when cracking hashes.
